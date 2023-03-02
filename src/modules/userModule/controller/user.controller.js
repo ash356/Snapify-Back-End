@@ -1,3 +1,4 @@
+import postModel from "../../../../DB/model/Post.model.js";
 import userModel from "../../../../DB/model/User.model.js";
 import { hash } from "../../../utils/HashAndCompare.js";
 
@@ -21,11 +22,12 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const user = await userModel.findByIdAndDelete(req.user._id);
-    return user
-      ? res.json({ message: "Success", user })
+    const deletePosts = await postModel.deleteMany({ userId: req.user._id });
+    return deletePosts
+      ? res.json({ message: "Success", user, posts: deletePosts.deletedCount })
       : res.json({ message: "User Not Found!" });
   } catch (error) {
-    return res.json({ message: "Error!", error });
+    return res.json({ message: "Error!", error, stack: error.stack });
   }
 };
 // 03- Get User Data
